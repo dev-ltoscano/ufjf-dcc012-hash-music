@@ -6,31 +6,10 @@
 
 package br.ufjf.ed.hashmusic.view;
 
-import br.ufjf.ed.hashmusic.helper.FileHelper;
-import br.ufjf.ed.hashmusic.helper.XmlHelper;
-import br.ufjf.ed.hashmusic.model.MusicInfo;
-import br.ufjf.ed.hashmusic.view.component.list.IconListRenderer;
-import com.mpatric.mp3agic.ID3v1;
-import com.mpatric.mp3agic.ID3v2;
-import com.mpatric.mp3agic.InvalidDataException;
-import com.mpatric.mp3agic.Mp3File;
-import com.mpatric.mp3agic.UnsupportedTagException;
-import java.awt.Dialog;
+import br.ufjf.ed.hashmusic.repository.Mp3Repository;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.Icon;
-import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.ListModel;
-import javax.swing.SwingWorker;
-import javax.swing.plaf.metal.MetalIconFactory;
 
 /**
  *
@@ -38,7 +17,7 @@ import javax.swing.plaf.metal.MetalIconFactory;
  */
 public class MainWindow extends javax.swing.JFrame 
 {
-    private String pathRepository;
+    private Mp3Repository repository;
     
     /**
      * Creates new form MainWindow
@@ -48,7 +27,7 @@ public class MainWindow extends javax.swing.JFrame
         initComponents();
         setLocationRelativeTo(null);
         
-        this.pathRepository = String.format("%s\\%s", System.getProperty("user.dir"), "Repository");
+        this.repository = new Mp3Repository();
     }
 
     /**
@@ -146,88 +125,18 @@ public class MainWindow extends javax.swing.JFrame
     }// </editor-fold>//GEN-END:initComponents
 
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
-        final File[] dirList = this.showImportDirectoryChooser();
+        final File[] dirList = this.repository.showImportDirectoryChooser();
         
         if(dirList != null)
         {
-            SwingWorker worker = new SwingWorker() 
-            {
-                @Override
-                protected Void doInBackground() throws InterruptedException 
-                {
-                    ArrayList<MusicInfo> musicInfoList = new ArrayList<>();
-                    
-                    for (File dir : dirList) 
-                    {
-                        if(!isCancelled())
-                        {
-                            ArrayList<String> allMp3Files = FileHelper.getAllFilesList(dir, "mp3");
-
-                            for (String mp3Path : allMp3Files) 
-                            {
-                                if(!isCancelled())
-                                {
-                                    try 
-                                    {
-                                        Mp3File mp3File = new Mp3File(mp3Path);
-
-                                        if (mp3File.hasId3v2Tag()) 
-                                        {
-                                            ID3v2 tagv2 = mp3File.getId3v2Tag();
-                                            musicInfoList.add(new MusicInfo(tagv2.getArtist(), tagv2.getAlbum(), tagv2.getTitle()));
-                                        }
-                                    } 
-                                    catch (IOException ex) 
-                                    {
-                                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                                    } 
-                                    catch (UnsupportedTagException ex) 
-                                    {
-                                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                                    } 
-                                    catch (InvalidDataException ex)
-                                    {
-                                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-
-                    if(!isCancelled())
-                    {
-                        try 
-                        {
-                            if (XmlHelper.saveXml(String.format("%s\\%s", pathRepository, "Music.xml"), musicInfoList))
-                                JOptionPane.showMessageDialog(MainWindow.this, "Músicas importadas com sucesso!");
-                        } 
-                        catch (FileNotFoundException ex)
-                        {
-                            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                        } 
-                        catch (IOException ex) 
-                        {
-                            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                        }
-                    }
-                    
-                    return null;
-                }
-            };
-            
-            ProgressDialog progDialog = new ProgressDialog(MainWindow.this, true, worker);
+            ProgressDialog progDialog = new ProgressDialog(MainWindow.this, true, repository.getImportDirectoryWorker(dirList));
             progDialog.setVisible(true);
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        if(!FileHelper.checkPathExists(pathRepository))
-        {
-            if(FileHelper.createDirectory(pathRepository))
-                JOptionPane.showMessageDialog(MainWindow.this, "Pasta do repositório criada com sucesso!");
-        }
-
-        this.loadRepository();
+        this.repository.createRepository();
+        this.repository.loadRepository();
     }//GEN-LAST:event_formWindowActivated
 
     /**
@@ -278,38 +187,6 @@ public class MainWindow extends javax.swing.JFrame
                 new MainWindow().setVisible(true);
             }
         });
-    }
-    
-    private File[] showImportDirectoryChooser()
-    {
-        JFileChooser fileChooser = new JFileChooser();
-        
-        fileChooser.setDialogTitle("Escolha diretórios para importação de músicas MP3");
-        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-        fileChooser.setMultiSelectionEnabled(true);
-
-        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) 
-            return fileChooser.getSelectedFiles();
-        
-        return null;
-    }
-    
-    private void loadRepository()
-    {
-	Map<Object, Icon> icons = new HashMap<>();
-        
-        for(int i = 0; i < 10; i++)
-        {
-            icons.put(String.format("Music %s", String.valueOf(i)), MetalIconFactory.getTreeLeafIcon());
-        }
-        
-        musicList.setModel(getMusicList());
-        musicList.setCellRenderer(new IconListRenderer(icons));
-    }
-    
-    private void saveRepository()
-    {
-        
     }
     
     private ListModel getMusicList()
