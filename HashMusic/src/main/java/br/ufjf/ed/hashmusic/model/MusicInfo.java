@@ -10,6 +10,13 @@ public class MusicInfo
     private String album;
     private String title;
     
+    public MusicInfo()
+    {
+        this.artist = "";
+        this.album = "";
+        this.title = "";
+    }
+    
     public MusicInfo(String artist, String album, String title)
     {
         this.artist = artist;

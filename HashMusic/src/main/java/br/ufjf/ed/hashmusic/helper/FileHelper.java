@@ -23,9 +23,9 @@ public class FileHelper
         return (new File(path).exists());
     }
     
-    public static ArrayList<String> getAllFilesList(File dir, String fileFilter)
+    public static ArrayList<File> getAllFilesList(File dir, String fileFilter)
     {
-        ArrayList<String> allFileList = new ArrayList<>();
+        ArrayList<File> allFileList = new ArrayList<>();
         
         File[] files = dir.listFiles();
         
@@ -36,10 +36,23 @@ public class FileHelper
             else
             {
                 if(FilenameUtils.getExtension(file.getName()).equals(fileFilter.toLowerCase()))
-                    allFileList.add(file.getAbsolutePath());
+                    allFileList.add(file);
             }
         }
         
         return allFileList;
+    }
+    
+    public static String formatSubDirectory(String rootPath, String... subPathList)
+    {
+        StringBuilder builder = new StringBuilder();
+        builder.append(rootPath);
+        
+        for(String subPath : subPathList)
+        {
+            builder.append(String.format("%s%s", File.separator, subPath));
+        }
+         
+        return builder.toString();
     }
 }

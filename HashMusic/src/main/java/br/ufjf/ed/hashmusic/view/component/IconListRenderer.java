@@ -1,4 +1,4 @@
-package br.ufjf.ed.hashmusic.view.component.list;
+package br.ufjf.ed.hashmusic.view.component;
 
 import java.awt.Component;
 import java.util.Map;

@@ -6,10 +6,17 @@
 
 package br.ufjf.ed.hashmusic.view;
 
+import br.ufjf.ed.hashmusic.model.MusicInfo;
 import br.ufjf.ed.hashmusic.repository.Mp3Repository;
 import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
-import javax.swing.ListModel;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
 
 /**
  *
@@ -17,7 +24,7 @@ import javax.swing.ListModel;
  */
 public class MainWindow extends javax.swing.JFrame 
 {
-    private Mp3Repository repository;
+    private final Mp3Repository repository;
     
     /**
      * Creates new form MainWindow
@@ -43,9 +50,9 @@ public class MainWindow extends javax.swing.JFrame
         addButton = new javax.swing.JButton();
         deleteButton = new javax.swing.JButton();
         splitPanel = new javax.swing.JSplitPane();
-        leftScrollPane = new javax.swing.JScrollPane();
-        albumTree = new javax.swing.JTree();
-        rightScrollPane = new javax.swing.JScrollPane();
+        scrollPaneTree = new javax.swing.JScrollPane();
+        musicTree = new javax.swing.JTree();
+        scrollPaneList = new javax.swing.JScrollPane();
         musicList = new javax.swing.JList();
         menuBar = new javax.swing.JMenuBar();
         fileMenu = new javax.swing.JMenu();
@@ -55,9 +62,10 @@ public class MainWindow extends javax.swing.JFrame
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hash Music");
         setMinimumSize(new java.awt.Dimension(640, 480));
+        setPreferredSize(new java.awt.Dimension(640, 480));
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowActivated(java.awt.event.WindowEvent evt) {
-                formWindowActivated(evt);
+            public void windowOpened(java.awt.event.WindowEvent evt) {
+                formWindowOpened(evt);
             }
         });
 
@@ -85,14 +93,27 @@ public class MainWindow extends javax.swing.JFrame
         deleteButton.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         toolbarMenu.add(deleteButton);
 
-        albumTree.setPreferredSize(new java.awt.Dimension(200, 64));
-        leftScrollPane.setViewportView(albumTree);
+        scrollPaneTree.setMinimumSize(new java.awt.Dimension(200, 23));
 
-        splitPanel.setLeftComponent(leftScrollPane);
+        javax.swing.tree.DefaultMutableTreeNode treeNode1 = new javax.swing.tree.DefaultMutableTreeNode("Repositório");
+        musicTree.setModel(new javax.swing.tree.DefaultTreeModel(treeNode1));
+        musicTree.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+            public void valueChanged(javax.swing.event.TreeSelectionEvent evt) {
+                musicTreeValueChanged(evt);
+            }
+        });
+        scrollPaneTree.setViewportView(musicTree);
 
-        rightScrollPane.setViewportView(musicList);
+        splitPanel.setLeftComponent(scrollPaneTree);
 
-        splitPanel.setRightComponent(rightScrollPane);
+        musicList.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                musicListMouseClicked(evt);
+            }
+        });
+        scrollPaneList.setViewportView(musicList);
+
+        splitPanel.setRightComponent(scrollPaneList);
 
         fileMenu.setText("Arquivo");
 
@@ -110,7 +131,7 @@ public class MainWindow extends javax.swing.JFrame
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(toolbarMenu, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(toolbarMenu, javax.swing.GroupLayout.DEFAULT_SIZE, 504, Short.MAX_VALUE)
             .addComponent(splitPanel)
         );
         layout.setVerticalGroup(
@@ -131,13 +152,62 @@ public class MainWindow extends javax.swing.JFrame
         {
             ProgressDialog progDialog = new ProgressDialog(MainWindow.this, true, repository.getImportDirectoryWorker(dirList));
             progDialog.setVisible(true);
+            
+            try 
+            {
+                this.repository.loadRepository();
+                this.loadMusicTree();
+            } 
+            catch (IOException ex) 
+            {
+                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
-    private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
-        this.repository.createRepository();
-        this.repository.loadRepository();
-    }//GEN-LAST:event_formWindowActivated
+    private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
+        try 
+        {
+            this.repository.createRepository();
+            this.repository.loadRepository();
+            
+            this.loadMusicTree();
+        } 
+        catch (IOException ex)
+        {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_formWindowOpened
+
+    private void musicTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_musicTreeValueChanged
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)musicTree.getLastSelectedPathComponent();
+        
+        if((selectedNode != null) && (selectedNode.getParent() != null))
+        {
+            DefaultListModel listModel = new DefaultListModel();
+            ArrayList<MusicInfo> musicInfoList = this.repository.filterByArtistAndAlbum(selectedNode.getParent().toString(), selectedNode.getUserObject().toString());
+            
+            for(MusicInfo info : musicInfoList)
+            {
+                listModel.addElement(info.getTitle());
+            }
+            
+            this.musicList.setModel(listModel);
+        }
+    }//GEN-LAST:event_musicTreeValueChanged
+
+    private void musicListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_musicListMouseClicked
+        try 
+        {
+            String selectedMusic = this.musicList.getSelectedValue().toString();
+            this.repository.openMusic(repository.getMusicInfo(selectedMusic));
+        } 
+        catch (IOException ex) 
+        {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_musicListMouseClicked
 
     /**
      * @param args the command line arguments
@@ -189,29 +259,63 @@ public class MainWindow extends javax.swing.JFrame
         });
     }
     
-    private ListModel getMusicList()
+    private void loadMusicTree()
     {
-        DefaultListModel model = new DefaultListModel();
+        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Repositório");
         
-        for(int i = 0; i < 10; i++)
+        for(MusicInfo musicInfo : repository.getRepositoryList())
         {
-            model.addElement(String.format("Music %s", String.valueOf(i)));
+            DefaultMutableTreeNode artistNode = this.getTreeNode(rootNode, musicInfo.getArtist());
+            
+            if(artistNode == null)
+                artistNode = new DefaultMutableTreeNode(musicInfo.getArtist());
+            
+            DefaultMutableTreeNode albumNode = this.getTreeNode(artistNode, musicInfo.getAlbum());
+            
+            if(albumNode == null)
+            {
+                albumNode = new DefaultMutableTreeNode(musicInfo.getAlbum());
+                artistNode.add(albumNode);
+            }
+            
+            rootNode.add(artistNode);
         }
         
-        return model;
+        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
+        this.musicTree.setModel(treeModel);
+    }
+    
+    private boolean containsTreeNode(DefaultMutableTreeNode rootNode, String childName)
+    {
+        return (getTreeNode(rootNode, childName) != null);
+    }
+    
+    private DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode, String childName)
+    {
+        Enumeration childrenList = rootNode.children();
+        
+        while(childrenList.hasMoreElements())
+        {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode)childrenList.nextElement();
+            
+            if(child.getUserObject().toString().toLowerCase().equals(childName.toLowerCase()))
+                return child;
+        }
+        
+        return null;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
-    private javax.swing.JTree albumTree;
     private javax.swing.JButton deleteButton;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
-    private javax.swing.JScrollPane leftScrollPane;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JList musicList;
+    private javax.swing.JTree musicTree;
     private javax.swing.JMenu reportMenu;
-    private javax.swing.JScrollPane rightScrollPane;
+    private javax.swing.JScrollPane scrollPaneList;
+    private javax.swing.JScrollPane scrollPaneTree;
     private javax.swing.JSplitPane splitPanel;
     private javax.swing.JToolBar toolbarMenu;
     // End of variables declaration//GEN-END:variables
