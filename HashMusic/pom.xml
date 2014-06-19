@@ -53,7 +53,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>br.ufjf.ed.hashmusic.view.MainWindow</mainClass>
+                            <mainClass>br.ufjf.ed.hashmusic.viewmodel.MainWindow</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

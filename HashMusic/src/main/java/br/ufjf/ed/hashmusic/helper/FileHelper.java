@@ -12,10 +12,7 @@ public class FileHelper
 {
     public static boolean createDirectory(String dirPath)
     {
-        if (!checkPathExists(dirPath)) 
-            return (new File(dirPath).mkdirs());
-
-        return false;
+        return (new File(dirPath).mkdirs());
     }
     
     public static boolean checkPathExists(String path)
@@ -54,5 +51,11 @@ public class FileHelper
         }
          
         return builder.toString();
+    }
+    
+    public static String replaceInvalidCharacters(String fileName)
+    {
+//        return fileName.replaceAll("[^a-zA-Z0-9\\.\\-]", "_");
+        return fileName.replaceAll("[^a-zA-Z0-9]", "_");
     }
 }

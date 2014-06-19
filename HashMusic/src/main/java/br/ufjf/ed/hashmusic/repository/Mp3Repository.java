@@ -1,11 +1,11 @@
 package br.ufjf.ed.hashmusic.repository;
 
-import br.ufjf.ed.hashmusic.hash.HashTest;
-import br.ufjf.ed.hashmusic.hash.IHash;
+import br.ufjf.ed.hashmusic.hash.IHashDirectory;
+import br.ufjf.ed.hashmusic.hash.directory.HashDivision;
 import br.ufjf.ed.hashmusic.helper.FileHelper;
 import br.ufjf.ed.hashmusic.helper.XmlHelper;
 import br.ufjf.ed.hashmusic.model.MusicInfo;
-import br.ufjf.ed.hashmusic.view.MainWindow;
+import br.ufjf.ed.hashmusic.viewmodel.MainWindow;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
@@ -63,7 +63,7 @@ public class Mp3Repository
     {
         JFileChooser fileChooser = new JFileChooser();
         
-        fileChooser.setDialogTitle("Escolha diretÃ³rios para importaÃ§Ã£o de mÃºsicas MP3");
+        fileChooser.setDialogTitle("Escolha diretórios para importação de músicas MP3");
         fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fileChooser.setMultiSelectionEnabled(true);
 
@@ -80,8 +80,6 @@ public class Mp3Repository
             @Override
             protected Void doInBackground() throws InterruptedException 
             {
-                ArrayList<MusicInfo> musicInfoList = new ArrayList<>();
-
                 for (File dir : dirList) 
                 {
                     if (!isCancelled())
@@ -100,19 +98,28 @@ public class Mp3Repository
                                     {
                                         ID3v2 tag = mp3.getId3v2Tag();
                                         
-                                        if((tag.getArtist() != null) && (tag.getAlbum() != null) && (tag.getTitle() != null))
+                                        if (((tag.getArtist() != null) && !tag.getArtist().isEmpty())
+                                                && ((tag.getAlbum() != null) && !tag.getAlbum().isEmpty())
+                                                && ((tag.getTitle() != null) && !tag.getTitle().isEmpty()))
                                         {
                                             MusicInfo musicInfo = new MusicInfo(tag.getArtist(), tag.getAlbum(), tag.getTitle());
+                                            
+                                            if(getMusicInfo(musicInfo.getTitle()) == null)
+                                            {
+                                                String mp3HashDir = getHashDir(musicInfo);
 
-                                            String mp3HashDir = HashMusic(musicInfo);
+                                                if (!FileHelper.checkPathExists(mp3HashDir))
+                                                    FileHelper.createDirectory(mp3HashDir);
+                                                    
+                                                String mp3HashName = getHashName(musicInfo);
+                                                
+                                                String mp3Path = FileHelper.formatSubDirectory(mp3HashDir, mp3HashName);
 
-                                            if (!FileHelper.checkPathExists(mp3HashDir))
-                                                FileHelper.createDirectory(mp3HashDir);
+                                                File mp3HashFile = new File(mp3Path);
+                                                Files.copy(mp3File.toPath(), mp3HashFile.toPath(), REPLACE_EXISTING);
 
-                                            File mp3HashFile = new File(FileHelper.formatSubDirectory(mp3HashDir, musicInfo.getTitle() + ".mp3"));
-                                            Files.copy(mp3File.toPath(), mp3HashFile.toPath(), REPLACE_EXISTING);
-
-                                            musicInfoList.add(musicInfo);
+                                                repositoryList.add(musicInfo);
+                                            }
                                         }
                                     }
                                 } 
@@ -141,8 +148,8 @@ public class Mp3Repository
                 {
                     try
                     {
-                        if (XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), musicInfoList))
-                            JOptionPane.showMessageDialog(null, "MÃºsicas importadas com sucesso!");
+                        if (XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList))
+                            JOptionPane.showMessageDialog(null, "Músicas importadas com sucesso!");
                     } 
                     catch (FileNotFoundException ex) 
                     {
@@ -166,7 +173,9 @@ public class Mp3Repository
         if(!FileHelper.checkPathExists(PATH_REPOSITORY))
         {
             if(FileHelper.createDirectory(PATH_REPOSITORY))
-                JOptionPane.showMessageDialog(null, "Pasta do repositÃ³rio criada com sucesso!");
+                JOptionPane.showMessageDialog(null, "Pasta do repositório criada com sucesso!");
+            else
+                JOptionPane.showMessageDialog(null, "Não foi possível criar a pasta do repositório!");
         }
     }
     
@@ -174,23 +183,7 @@ public class Mp3Repository
     {
         this.repositoryList = (ArrayList<MusicInfo>)XmlHelper.readXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList);
     }
-    
-    public ArrayList<MusicInfo> filterByArtist(String artist)
-    {
-        return this.filterByArtist(artist, repositoryList);
-    }
-    
-    public ArrayList<MusicInfo> filterByAlbum(String album)
-    {
-        return this.filterByAlbum(album, repositoryList);
-    }
 
-    public ArrayList<MusicInfo> filterByArtistAndAlbum(String artist, String album)
-    {
-        ArrayList<MusicInfo> artistMusicList = this.filterByArtist(artist, repositoryList);
-        return this.filterByAlbum(album, artistMusicList);
-    }
-    
     public MusicInfo getMusicInfo(String title)
     {
         if((title != null) && !title.isEmpty())
@@ -207,27 +200,35 @@ public class Mp3Repository
     
     public void openMusic(MusicInfo musicInfo) throws IOException
     {
-        if((musicInfo != null) && Desktop.isDesktopSupported())
+        if(Desktop.isDesktopSupported())
         {
-            String mp3HashDir = HashMusic(musicInfo);
+            String mp3HashDir = getHashDir(musicInfo);
+            String mp3HashName = getHashName(musicInfo);
+            String mp3Path = FileHelper.formatSubDirectory(mp3HashDir, mp3HashName);
 
-            if (FileHelper.checkPathExists(FileHelper.formatSubDirectory(mp3HashDir, musicInfo.getTitle() + ".mp3"))) 
-            {
-                File mp3File = new File(FileHelper.formatSubDirectory(mp3HashDir, musicInfo.getTitle() + ".mp3"));
-                
-                Desktop.getDesktop().open(mp3File);
-            }
+            if (FileHelper.checkPathExists(mp3Path))
+                Desktop.getDesktop().open(new File(mp3Path));
+            else
+                JOptionPane.showMessageDialog(null, "Música não encontrada!");
         }
+        else
+            JOptionPane.showMessageDialog(null, "A plataforma atual não dá suporte a este recurso");
+    }
+
+    public ArrayList<MusicInfo> filterByArtist(String artist)
+    {
+        return this.filterByArtist(artist, repositoryList);
     }
     
-    private String HashMusic(MusicInfo musicInfo)
+    public ArrayList<MusicInfo> filterByAlbum(String album)
     {
-        String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
+        return this.filterByAlbum(album, repositoryList);
+    }
 
-        IHash hashing = new HashTest();
-        String hashKey = hashing.hashDirectory(musicKey);
-
-        return FileHelper.formatSubDirectory(PATH_REPOSITORY, hashKey);
+    public ArrayList<MusicInfo> filterByArtistAndAlbum(String artist, String album)
+    {
+        ArrayList<MusicInfo> artistMusicList = this.filterByArtist(artist, repositoryList);
+        return this.filterByAlbum(album, artistMusicList);
     }
     
     private ArrayList<MusicInfo> filterByArtist(String artist, ArrayList<MusicInfo> musicInfoList)
@@ -254,5 +255,26 @@ public class Mp3Repository
         }
         
         return filtred;
+    }
+    
+    private String getHashDir(MusicInfo musicInfo)
+    {
+        String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
+
+        IHashDirectory hashing = new HashDivision();
+        String hashKey = hashing.getHash(musicKey);
+        
+        return FileHelper.formatSubDirectory(PATH_REPOSITORY, hashKey);
+    }
+    
+    private String getHashName(MusicInfo musicInfo)
+    {
+//        String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
+//
+//        IHash hashing = new HashTest();
+//        String hashKey = hashing.hashName(musicKey);
+//        
+        
+        return FileHelper.replaceInvalidCharacters(musicInfo.getTitle()) + ".mp3";
     }
 }

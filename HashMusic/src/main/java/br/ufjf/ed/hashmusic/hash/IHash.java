@@ -6,6 +6,6 @@ package br.ufjf.ed.hashmusic.hash;
  */
 public interface IHash 
 {
-    String hashDirectory(String key);
-    String hashFile(String key);
+    public int TSIZE = 99;
+    public int PRIME_NUMBER = 3571;
 }
