@@ -1,11 +1,11 @@
 package br.ufjf.ed.hashmusic.repository;
 
 import br.ufjf.ed.hashmusic.hash.IHashDirectory;
-import br.ufjf.ed.hashmusic.hash.directory.HashMeanSquare;
+import br.ufjf.ed.hashmusic.hash.directory.HashMd5;
 import br.ufjf.ed.hashmusic.helper.FileHelper;
 import br.ufjf.ed.hashmusic.helper.XmlHelper;
 import br.ufjf.ed.hashmusic.model.MusicInfo;
-import br.ufjf.ed.hashmusic.viewmodel.MainWindow;
+import br.ufjf.ed.hashmusic.model.RepositoryLogInfo;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
@@ -17,8 +17,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -75,8 +73,11 @@ public class Mp3Repository
 
     public SwingWorker getImportDirectoryWorker(final File[] dirList)
     {
-        SwingWorker worker = new SwingWorker()
+        SwingWorker worker;
+        worker = new SwingWorker()
         {
+            private final ArrayList<RepositoryLogInfo> logInfoList = new ArrayList<>();
+            
             @Override
             protected Void doInBackground() throws InterruptedException 
             {
@@ -85,7 +86,7 @@ public class Mp3Repository
                     if (!isCancelled())
                     {
                         ArrayList<File> allMp3Files = FileHelper.getAllFilesList(dir, "mp3");
-
+                        
                         for (File mp3File : allMp3Files) 
                         {
                             if (!isCancelled()) 
@@ -122,18 +123,10 @@ public class Mp3Repository
                                             }
                                         }
                                     }
-                                } 
-                                catch (IOException ex) 
+                                }
+                                catch (IOException | UnsupportedTagException | InvalidDataException ex) 
                                 {
-                                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                                } 
-                                catch (UnsupportedTagException ex) 
-                                {
-                                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                                } 
-                                catch (InvalidDataException ex) 
-                                {
-                                    Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                                    logInfoList.add(new RepositoryLogInfo(mp3File.getAbsolutePath(), ex.getMessage()));
                                 }
                             }
                             else
@@ -144,24 +137,27 @@ public class Mp3Repository
                         break;
                 }
 
-                if (!isCancelled()) 
-                {
-                    try
-                    {
-                        if (XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList))
-                            JOptionPane.showMessageDialog(null, "Músicas importadas com sucesso!");
-                    } 
-                    catch (FileNotFoundException ex) 
-                    {
-                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                    } 
-                    catch (IOException ex) 
-                    {
-                        Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                }
-
                 return null;
+            }
+            
+            @Override
+            protected void done()
+            {
+                try 
+                {
+                    XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "ImportLog.xml"), logInfoList);
+                    
+                    if (XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList)) 
+                        JOptionPane.showMessageDialog(null, "Músicas importadas com sucesso!");
+                } 
+                catch (FileNotFoundException ex) 
+                {
+                    JOptionPane.showMessageDialog(null, String.format("Erro ao importar as músicas: %s", ex.getMessage()));
+                } 
+                catch (IOException ex) 
+                {
+                    JOptionPane.showMessageDialog(null, String.format("Erro ao importar as músicas: %s", ex.getMessage()));
+                }
             }
         };
         
@@ -198,7 +194,7 @@ public class Mp3Repository
         return null;
     }
     
-    public void openMusic(MusicInfo musicInfo) throws IOException
+    public void openMusic(MusicInfo musicInfo) throws IOException, UnsupportedOperationException
     {
         if(Desktop.isDesktopSupported())
         {
@@ -206,13 +202,10 @@ public class Mp3Repository
             String mp3HashName = getHashName(musicInfo);
             String mp3Path = FileHelper.formatSubDirectory(mp3HashDir, mp3HashName);
 
-            if (FileHelper.checkPathExists(mp3Path))
-                Desktop.getDesktop().open(new File(mp3Path));
-            else
-                JOptionPane.showMessageDialog(null, "Música não encontrada!");
+            Desktop.getDesktop().open(new File(mp3Path));
         }
         else
-            JOptionPane.showMessageDialog(null, "A plataforma atual não dá suporte a este recurso");
+            throw new UnsupportedOperationException();
     }
 
     public ArrayList<MusicInfo> filterByArtist(String artist)
@@ -261,7 +254,7 @@ public class Mp3Repository
     {
         String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
 
-        IHashDirectory hashing = new HashMeanSquare();
+        IHashDirectory hashing = new HashMd5();
         String hashKey = hashing.getHash(musicKey);
         
         return FileHelper.formatSubDirectory(PATH_REPOSITORY, hashKey);

@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufjf.ed.hashmusic.viewmodel;
 
 import br.ufjf.ed.hashmusic.model.MusicInfo;
@@ -12,9 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
+import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
@@ -155,7 +148,7 @@ public class MainWindow extends javax.swing.JFrame
             } 
             catch (IOException ex) 
             {
-                Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+                JOptionPane.showMessageDialog(this, String.format("Erro ao importar as músicas para o diretório: %s", ex.getMessage()));
             }
             
         }
@@ -171,7 +164,7 @@ public class MainWindow extends javax.swing.JFrame
         } 
         catch (IOException ex)
         {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Nenhuma música adicionada no repositório!");
         }
     }//GEN-LAST:event_formWindowOpened
 
@@ -200,7 +193,11 @@ public class MainWindow extends javax.swing.JFrame
         } 
         catch (IOException ex) 
         {
-            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+            JOptionPane.showMessageDialog(this, "Música não encontrada!");
+        }
+        catch(UnsupportedOperationException ex)
+        {
+            JOptionPane.showMessageDialog(this, "A plataforma atual não dá suporte a este recurso");
         }
     }//GEN-LAST:event_musicListMouseClicked
 
