@@ -6,5 +6,5 @@ package br.ufjf.ed.hashmusic.hash;
  */
 public interface IHashDirectory
 {
-    String getHash(String key);
+    String getHash(String key) throws IllegalArgumentException;
 }

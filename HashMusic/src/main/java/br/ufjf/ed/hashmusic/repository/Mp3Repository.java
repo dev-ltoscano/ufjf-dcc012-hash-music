@@ -1,7 +1,7 @@
 package br.ufjf.ed.hashmusic.repository;
 
 import br.ufjf.ed.hashmusic.hash.IHashDirectory;
-import br.ufjf.ed.hashmusic.hash.directory.HashDivision;
+import br.ufjf.ed.hashmusic.hash.directory.HashMeanSquare;
 import br.ufjf.ed.hashmusic.helper.FileHelper;
 import br.ufjf.ed.hashmusic.helper.XmlHelper;
 import br.ufjf.ed.hashmusic.model.MusicInfo;
@@ -261,7 +261,7 @@ public class Mp3Repository
     {
         String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
 
-        IHashDirectory hashing = new HashDivision();
+        IHashDirectory hashing = new HashMeanSquare();
         String hashKey = hashing.getHash(musicKey);
         
         return FileHelper.formatSubDirectory(PATH_REPOSITORY, hashKey);
