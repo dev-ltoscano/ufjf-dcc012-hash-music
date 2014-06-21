@@ -12,11 +12,12 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 
 /**
- *
+ * Janela principal do programa
  * @author Luis Augusto
  */
 public class MainWindow extends javax.swing.JFrame 
 {
+    // Repositório de músicas Mp3
     private final Mp3Repository repository;
     
     /**
@@ -133,33 +134,42 @@ public class MainWindow extends javax.swing.JFrame
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    // Faz a importação de novas músicas para o repositório
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
+        // Mostra a janela para a escolha dos diretórios a serem importados
         final File[] dirList = this.repository.showImportDirectoryChooser();
         
         if(dirList != null)
         {
-            ProgressDialog progDialog = new ProgressDialog(MainWindow.this, true, repository.getImportDirectoryWorker(dirList));
-            progDialog.setVisible(true);
+            // Cria o worker e abre a janela de progresso da operação (Feedback para o usuário)
+            ProgressDialog progDialog = new ProgressDialog(this, true, repository.getImportDirectoryWorker(dirList));
+            progDialog.setVisible(true); // Janela modal
             
             try 
             {
+                // Ao término da operação, recarrega o repositório
                 this.repository.loadRepository();
+                
+                // Recarrega a árvore de Artistas->Álbuns
                 this.loadMusicTree();
             } 
             catch (IOException ex) 
             {
                 JOptionPane.showMessageDialog(this, String.format("Erro ao importar as músicas para o diretório: %s", ex.getMessage()));
             }
-            
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
         try 
         {
+            // Ao abrir o programa, se não existe o repositório, cria o diretório
             this.repository.createRepository();
+            
+            // Tenta carregar músicas do repositório
             this.repository.loadRepository();
             
+            // Carrega a árvore de Artistas->Álbuns 
             this.loadMusicTree();
         } 
         catch (IOException ex)
@@ -168,27 +178,35 @@ public class MainWindow extends javax.swing.JFrame
         }
     }//GEN-LAST:event_formWindowOpened
 
+    // Quando há alterações na árvore de Artistas->Álbuns, carrega a lista de músicas
     private void musicTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_musicTreeValueChanged
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)musicTree.getLastSelectedPathComponent();
         
         if((selectedNode != null) && (selectedNode.getParent() != null))
         {
             DefaultListModel listModel = new DefaultListModel();
+            
+            // Filtra as músicas do repositório pelo artista e pelo álbum
             ArrayList<MusicInfo> musicInfoList = this.repository.filterByArtistAndAlbum(selectedNode.getParent().toString(), selectedNode.getUserObject().toString());
             
+            // Adiciona todas as músicas do álbum selecionado na lista de músicas
             for(MusicInfo info : musicInfoList)
             {
                 listModel.addElement(info.getTitle());
             }
             
+            // Exibe a lista de músicas
             this.musicList.setModel(listModel);
         }
     }//GEN-LAST:event_musicTreeValueChanged
-
+    
+    // Ao clicar em uma música da lista de músicas, toca a música
     private void musicListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_musicListMouseClicked
         try 
         {
             String selectedMusic = this.musicList.getSelectedValue().toString();
+            
+            // Busca pelas informações da música selecionada a toca a música
             this.repository.openMusic(repository.getMusicInfo(selectedMusic));
         } 
         catch (IOException ex) 
@@ -255,37 +273,45 @@ public class MainWindow extends javax.swing.JFrame
         });
     }
     
+    // Carrega os nós da árvore de Artista->Álbuns
     private void loadMusicTree()
     {
+        // Nó raiz do repositório
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Repositório");
         
+        // Percorre toda a lista de informações de música do repositório
         for(MusicInfo musicInfo : repository.getRepositoryList())
         {
+            // Busca pelo nó do artista
             DefaultMutableTreeNode artistNode = this.getTreeNode(rootNode, musicInfo.getArtist());
             
+            // Verifica se o nó do artista não existe, se não existir, cria um novo nó
             if(artistNode == null)
                 artistNode = new DefaultMutableTreeNode(musicInfo.getArtist());
             
+            // Busca pelo nó do álbum
             DefaultMutableTreeNode albumNode = this.getTreeNode(artistNode, musicInfo.getAlbum());
             
+            // Verifica se o nó do álbum não existe, se não existir, cria um novo nó
             if(albumNode == null)
             {
                 albumNode = new DefaultMutableTreeNode(musicInfo.getAlbum());
+                
+                // Adiciona o nó do álbum como filho do nó do artista
                 artistNode.add(albumNode);
             }
             
+            // Adiciona todos os nós de artista como filhos do nó raiz do repositório
             rootNode.add(artistNode);
         }
         
         DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
+        
+        // Exibe a árvore
         this.musicTree.setModel(treeModel);
     }
     
-    private boolean containsTreeNode(DefaultMutableTreeNode rootNode, String childName)
-    {
-        return (getTreeNode(rootNode, childName) != null);
-    }
-    
+    // Busca por um nó na árvore através do nome do nó
     private DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode, String childName)
     {
         Enumeration childrenList = rootNode.children();

@@ -8,7 +8,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 
 /**
- *
+ * Classe que define os ícones da lista de músicas
  * @author Luis Augusto
  */
 public class IconListRenderer extends DefaultListCellRenderer
@@ -29,4 +29,3 @@ public class IconListRenderer extends DefaultListCellRenderer
 		return label;
 	}
 }
-

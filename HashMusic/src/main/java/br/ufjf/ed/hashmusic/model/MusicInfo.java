@@ -1,7 +1,7 @@
 package br.ufjf.ed.hashmusic.model;
 
 /**
- *
+ * Classe de objetos que guardam as informações de uma música
  * @author Luis Augusto
  */
 public class MusicInfo 

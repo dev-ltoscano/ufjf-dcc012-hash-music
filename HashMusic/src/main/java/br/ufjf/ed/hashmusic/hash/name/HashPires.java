@@ -8,6 +8,7 @@ package br.ufjf.ed.hashmusic.hash.name;
 
 import br.ufjf.ed.hashmusic.hash.IHash;
 import br.ufjf.ed.hashmusic.hash.IHashDirectory;
+import br.ufjf.ed.hashmusic.hash.IHashName;
 
 /**
  *
@@ -15,9 +16,6 @@ import br.ufjf.ed.hashmusic.hash.IHashDirectory;
  */
 public class HashPires implements IHash, IHashDirectory
 {
-    
-    private final int TAMANHO = 10;
-    
     @Override
     public String getHash(String key) throws IllegalArgumentException
     {
@@ -34,13 +32,13 @@ public class HashPires implements IHash, IHashDirectory
         
         String hash = String.valueOf(Integer.toString((int)Math.pow(sum, 2), 20));
         
-        if(hash.length() < TAMANHO)
+        if(hash.length() < IHashName.NAME_LENGTH)
             return hash;
         
         int metade = hash.length()/2;
         
-        int inicio = metade - (TAMANHO/2);
-        int fim = metade + (TAMANHO/2);
+        int inicio = metade - (IHashName.NAME_LENGTH / 2);
+        int fim = metade + (IHashName.NAME_LENGTH / 2);
         
         return hash.substring(inicio, fim);
     }

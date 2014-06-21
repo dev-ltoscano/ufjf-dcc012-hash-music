@@ -13,12 +13,11 @@ import br.ufjf.ed.hashmusic.hash.IHashName;
  *
  * @author -Igor
  */
-public class HashHalfSquare implements IHash, IHashName {
-    
-    private final int TAMANHO = 10;
-    
+public class HashHalfSquare implements IHash, IHashName 
+{
     @Override
-    public String getHash(String key) {
+    public String getHash(String key) throws IllegalArgumentException 
+    {
         if((key == null) || key.isEmpty())
             throw new IllegalArgumentException();
         
@@ -32,15 +31,14 @@ public class HashHalfSquare implements IHash, IHashName {
         
         String hash = String.valueOf(Math.pow(sum, 2));
         
-        if(hash.length() < TAMANHO)
+        if(hash.length() < IHashName.NAME_LENGTH)
             return hash;
         
         int metade = hash.length()/2;
         
-        int inicio = metade - (TAMANHO/2);
-        int fim = metade + (TAMANHO/2);
+        int inicio = metade - (IHashName.NAME_LENGTH / 2);
+        int fim = metade + (IHashName.NAME_LENGTH / 2);
         
         return hash.substring(inicio, fim);
     }
-    
 }

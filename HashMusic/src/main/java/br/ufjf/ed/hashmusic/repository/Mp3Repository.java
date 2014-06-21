@@ -1,7 +1,9 @@
 package br.ufjf.ed.hashmusic.repository;
 
 import br.ufjf.ed.hashmusic.hash.IHashDirectory;
-import br.ufjf.ed.hashmusic.hash.directory.HashMd5;
+import br.ufjf.ed.hashmusic.hash.IHashName;
+import br.ufjf.ed.hashmusic.hash.directory.HashDivision;
+import br.ufjf.ed.hashmusic.hash.name.HashMultiplication;
 import br.ufjf.ed.hashmusic.helper.FileHelper;
 import br.ufjf.ed.hashmusic.helper.XmlHelper;
 import br.ufjf.ed.hashmusic.model.MusicInfo;
@@ -22,12 +24,15 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /**
- *
+ * Classe que representa um repositório de músicas Mp3
  * @author Luis Augusto
  */
 public class Mp3Repository 
 {
+    // Diretório do repositório
     private final String PATH_REPOSITORY;
+    
+    // Lista de MusicInfo das músicas contidas no repositório
     private ArrayList<MusicInfo> repositoryList;
     
     public Mp3Repository()
@@ -57,6 +62,10 @@ public class Mp3Repository
         return repositoryList;
     }
     
+    /**
+     * Mostra a janela de escolha dos diretórios para a importação de novas músicas
+     * @return Lista de diretórios selecionados
+     */
     public File[] showImportDirectoryChooser()
     {
         JFileChooser fileChooser = new JFileChooser();
@@ -71,54 +80,77 @@ public class Mp3Repository
         return null;
     }
 
+    /**
+     * Gera um worker (Multi-Threading) para a operação de importações de músicas
+     * @param dirList Lista de diretórios para importação
+     * @return Worker da operação de importação
+     */
     public SwingWorker getImportDirectoryWorker(final File[] dirList)
     {
         SwingWorker worker;
         worker = new SwingWorker()
         {
+            // Lista que guarda informações de erros durante o processo de importação
             private final ArrayList<RepositoryLogInfo> logInfoList = new ArrayList<>();
             
             @Override
             protected Void doInBackground() throws InterruptedException 
             {
+                // Percorre a lista de todos os diretórios para importação
                 for (File dir : dirList) 
                 {
+                    // Verifica se o worker não foi cancelado, se foi, sai da iteração
                     if (!isCancelled())
                     {
+                        // Lista com todos os Mp3 do diretório
                         ArrayList<File> allMp3Files = FileHelper.getAllFilesList(dir, "mp3");
                         
+                        // Percorre cada arquivo da lista de Mp3 do diretório
                         for (File mp3File : allMp3Files) 
                         {
+                            // Verifica se o worker não foi cancelado, se foi, sai da iteração
                             if (!isCancelled()) 
                             {
                                 try 
                                 {
+                                    // Novo objeto da classe Mp3File da biblioteca mp3agic
                                     Mp3File mp3 = new Mp3File(mp3File.getAbsolutePath());
-
+                                    
+                                    // Verifica se o arquivo Mp3 contém tags ID3v2
                                     if (mp3.hasId3v2Tag())
                                     {
+                                        // Pega as tags ID3v2
                                         ID3v2 tag = mp3.getId3v2Tag();
                                         
+                                        // Verifica se todas os atributos da tag estão preenchidos
                                         if (((tag.getArtist() != null) && !tag.getArtist().isEmpty())
                                                 && ((tag.getAlbum() != null) && !tag.getAlbum().isEmpty())
                                                 && ((tag.getTitle() != null) && !tag.getTitle().isEmpty()))
                                         {
-                                            MusicInfo musicInfo = new MusicInfo(tag.getArtist(), tag.getAlbum(), tag.getTitle());
-                                            
-                                            if(getMusicInfo(musicInfo.getTitle()) == null)
+                                            // Faz a verificação se a música já não existe no repositório, só adiciono músicas que não existem
+                                            if(getMusicInfo(tag.getTitle()) == null)
                                             {
+                                                // Preenche um novo objeto MusicInfo com as informações da tag
+                                                MusicInfo musicInfo = new MusicInfo(tag.getArtist(), tag.getAlbum(), tag.getTitle());
+                                                
+                                                // Pega o hash para alocação do diretório
                                                 String mp3HashDir = getHashDir(musicInfo);
-
+                                                
+                                                // Verifica se o diretório já existe, senão existir, cria o novo diretório
                                                 if (!FileHelper.checkPathExists(mp3HashDir))
                                                     FileHelper.createDirectory(mp3HashDir);
-                                                    
+                                                
+                                                // Pega o hash para a renomeação do arquivo
                                                 String mp3HashName = getHashName(musicInfo);
                                                 
+                                                // Concatena o diretório com o nome do arquivo
                                                 String mp3Path = FileHelper.formatSubDirectory(mp3HashDir, mp3HashName);
-
+                                                
+                                                // Copia a música para o repositório
                                                 File mp3HashFile = new File(mp3Path);
                                                 Files.copy(mp3File.toPath(), mp3HashFile.toPath(), REPLACE_EXISTING);
-
+                                                
+                                                // Adiciona as informações da música para a lista do repositório
                                                 repositoryList.add(musicInfo);
                                             }
                                         }
@@ -126,6 +158,7 @@ public class Mp3Repository
                                 }
                                 catch (IOException | UnsupportedTagException | InvalidDataException ex) 
                                 {
+                                    // Guardo o arquivo da música que gerou o erro e as informações da exceção para gerar um log da importação
                                     logInfoList.add(new RepositoryLogInfo(mp3File.getAbsolutePath(), ex.getMessage()));
                                 }
                             }
@@ -145,10 +178,10 @@ public class Mp3Repository
             {
                 try 
                 {
+                    // Ao término da operação de importação, crio um arquivo XML para o log da importação e um para guardar a lista de informações das músicas do repositório
                     XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "ImportLog.xml"), logInfoList);
-                    
-                    if (XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList)) 
-                        JOptionPane.showMessageDialog(null, "Músicas importadas com sucesso!");
+                    XmlHelper.saveXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList);
+                    JOptionPane.showMessageDialog(null, "Músicas importadas com sucesso!");
                 } 
                 catch (FileNotFoundException ex) 
                 {
@@ -164,6 +197,9 @@ public class Mp3Repository
         return worker;
     }
     
+    /**
+     * Se o diretório do repositório não existir, cria o diretório
+     */
     public void createRepository()
     {
         if(!FileHelper.checkPathExists(PATH_REPOSITORY))
@@ -175,11 +211,20 @@ public class Mp3Repository
         }
     }
     
+    /**
+     * Carrega a lista de informações das músicas adicionadas no repositório
+     * @throws IOException 
+     */
     public void loadRepository() throws IOException
     {
         this.repositoryList = (ArrayList<MusicInfo>)XmlHelper.readXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList);
     }
 
+    /**
+     * Pega as informações de uma música do repositório filtrando pelo título
+     * @param title Título da música
+     * @return Informações da música se a mesma for encontrada
+     */
     public MusicInfo getMusicInfo(String title)
     {
         if((title != null) && !title.isEmpty())
@@ -194,36 +239,71 @@ public class Mp3Repository
         return null;
     }
     
+    /**
+     * Toca uma música do repositório no player padrão do sistema
+     * @param musicInfo Informações da música do repositório
+     * @throws IOException
+     * @throws UnsupportedOperationException 
+     */
     public void openMusic(MusicInfo musicInfo) throws IOException, UnsupportedOperationException
     {
+        // Verifica se o sistema dá suporte para a chamada
         if(Desktop.isDesktopSupported())
         {
+            // Pega o hash do diretório
             String mp3HashDir = getHashDir(musicInfo);
+            
+            //Pega o hash do nome do arquivo
             String mp3HashName = getHashName(musicInfo);
+            
+            // Concatena os hashes para descobrir o caminho completo do arquivo Mp3 no repositório
             String mp3Path = FileHelper.formatSubDirectory(mp3HashDir, mp3HashName);
-
+            
+            // Abre a música no player padrão do sistema
             Desktop.getDesktop().open(new File(mp3Path));
         }
         else
             throw new UnsupportedOperationException();
     }
-
+    
+    /**
+     * Filtra as músicas do repositório por um artista
+     * @param artist Nome do artista
+     * @return Lista das músicas do artista
+     */
     public ArrayList<MusicInfo> filterByArtist(String artist)
     {
         return this.filterByArtist(artist, repositoryList);
     }
     
+    /**
+     * Filtra as músicas do repositório por um álbum
+     * @param album Nome do album
+     * @return Lista das músicas de um álbum
+     */
     public ArrayList<MusicInfo> filterByAlbum(String album)
     {
         return this.filterByAlbum(album, repositoryList);
     }
-
+    
+    /**
+     * Filtra as músicas do repositório por um artista e um álbum
+     * @param artist Nome do artista
+     * @param album Nome do album
+     * @return Lista das músicas do artista e do álbum
+     */
     public ArrayList<MusicInfo> filterByArtistAndAlbum(String artist, String album)
     {
         ArrayList<MusicInfo> artistMusicList = this.filterByArtist(artist, repositoryList);
         return this.filterByAlbum(album, artistMusicList);
     }
     
+    /**
+     * Função auxiliar para filtrar as músicas pelo artista
+     * @param artist Nome do artista
+     * @param musicInfoList Lista com as informações das músicas a serem buscadas
+     * @return Lista das músicas do artista
+     */
     private ArrayList<MusicInfo> filterByArtist(String artist, ArrayList<MusicInfo> musicInfoList)
     {
         ArrayList<MusicInfo> filtred = new ArrayList<>();
@@ -237,6 +317,12 @@ public class Mp3Repository
         return filtred;
     }
     
+    /**
+     * Função auxiliar para filtrar as músicas pelo artista
+     * @param album Nome do álbum
+     * @param musicInfoList Lista com as informações das músicas a serem buscadas
+     * @return Lista das músicas do álbum
+     */
     private ArrayList<MusicInfo> filterByAlbum(String album, ArrayList<MusicInfo> musicInfoList)
     {
         ArrayList<MusicInfo> filtred = new ArrayList<>();
@@ -250,24 +336,39 @@ public class Mp3Repository
         return filtred;
     }
     
+    /**
+     * Função que retorna o hash do diretório
+     * @param musicInfo Informações da música
+     * @return Hash do diretório
+     */
     private String getHashDir(MusicInfo musicInfo)
     {
+        // Chave usada para alocação do diretório: Nome do artista + '#' + Nome do álbum
         String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
 
-        IHashDirectory hashing = new HashMd5();
+        // Função de hash usada
+        IHashDirectory hashing = new HashDivision(); // Para alterar a função de alocação de diretórios, basta alterar a instância da classe de Hash
         String hashKey = hashing.getHash(musicKey);
         
+        // Formata o caminho do diretório colocando-o como subdiretório da pasta do repositório
         return FileHelper.formatSubDirectory(PATH_REPOSITORY, hashKey);
     }
     
+    /**
+     * Função que retorna o hash do nome do arquivo
+     * @param musicInfo Informações da música
+     * @return Hash do nome do arquivo
+     */
     private String getHashName(MusicInfo musicInfo)
     {
-//        String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
-//
-//        IHash hashing = new HashTest();
-//        String hashKey = hashing.hashName(musicKey);
-//        
+        // Chave usada para alocação do diretório: Nome do artista + '#' + Nome do álbum + '#' + Título da música
+        String musicKey = String.format("%s#%s#%s", musicInfo.getArtist(), musicInfo.getAlbum(), musicInfo.getTitle());
+
+        // Função de hash usada
+        IHashName hashing = new HashMultiplication();// Para alterar a função de renomeação de arquivos, basta alterar a instância da classe de Hash
+        String hashKey = hashing.getHash(musicKey);
         
-        return FileHelper.replaceInvalidCharacters(musicInfo.getTitle()) + ".mp3";
+        // Formata o hash retirando caracteres inválidos para nomes de arquivo
+        return FileHelper.replaceInvalidCharacters(hashKey).concat(".mp3");
     }
 }

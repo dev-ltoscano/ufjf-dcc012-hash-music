@@ -13,12 +13,11 @@ import br.ufjf.ed.hashmusic.hash.IHashName;
  *
  * @author -Igor
  */
-public class HashMultiplication implements IHash, IHashName {
-    
-    private final int TAMANHO = 10;
-    
+public class HashMultiplication implements IHash, IHashName 
+{
     @Override
-    public String getHash(String key) {
+    public String getHash(String key) throws IllegalArgumentException 
+    {
         if((key == null) || key.isEmpty())
             throw new IllegalArgumentException();
         
@@ -32,10 +31,9 @@ public class HashMultiplication implements IHash, IHashName {
         
         String hash = String.valueOf(sum * ((float)key.length() / IHash.PRIME_NUMBER));
         
-        if(hash.length() < TAMANHO)
+        if(hash.length() < IHashName.NAME_LENGTH)
             return hash;
         
-        return hash.substring(hash.length() - TAMANHO);
+        return hash.substring(hash.length() - IHashName.NAME_LENGTH);
     }
-    
 }

@@ -1,7 +1,7 @@
 package br.ufjf.ed.hashmusic.model;
 
 /**
- *
+ * Classe de objetos para arquivos XML de log de importação de músicas
  * @author Luis Augusto
  */
 public class RepositoryLogInfo extends LogInfo

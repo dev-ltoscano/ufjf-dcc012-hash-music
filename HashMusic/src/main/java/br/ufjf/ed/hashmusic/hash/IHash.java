@@ -1,11 +1,14 @@
 package br.ufjf.ed.hashmusic.hash;
 
-/**
- *
+/** 
+ *  Interface que define constantes usadas nas funções de Hash
  * @author Luis Augusto
  */
 public interface IHash 
 {
-    public int TSIZE = 99;
-    public int PRIME_NUMBER = 3571;
+    // Tamanho da tabela de Hash
+    public int TSIZE = 100; 
+    
+    // Número primo para dispersão das chaves na tabela
+    public int PRIME_NUMBER = 3571; // Fonte: http://en.wikipedia.org/wiki/List_of_prime_numbers
 }
