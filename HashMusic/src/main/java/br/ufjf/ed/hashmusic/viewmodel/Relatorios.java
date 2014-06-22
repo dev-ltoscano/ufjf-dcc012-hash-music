@@ -62,15 +62,15 @@ public class Relatorios extends javax.swing.JFrame {
 
                     colideDir++;
                 } else {
-                    existentName.add(hashDir);
+                    existentDir.add(hashDir);
                 }
 
             }
 
-            jLabel4.setText(String.valueOf(colideName / musics.size()));
-            jLabel6.setText(String.valueOf(colideName / colidedName.size()));
-            jLabel10.setText(String.valueOf(colideDir / musics.size()));
-            jLabel11.setText(String.valueOf(colideDir / colidedDir.size()));
+            jLabel4.setText(String.valueOf((float)colideName / musics.size()));
+            jLabel6.setText(String.valueOf((float)colideName / colidedName.size()));
+            jLabel10.setText(String.valueOf((float)colideDir / musics.size()));
+            jLabel11.setText(String.valueOf((float)colideDir / colidedDir.size()));
             
         } else {
             
