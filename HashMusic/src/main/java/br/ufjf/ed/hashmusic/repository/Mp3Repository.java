@@ -341,7 +341,7 @@ public class Mp3Repository
      * @param musicInfo Informações da música
      * @return Hash do diretório
      */
-    private String getHashDir(MusicInfo musicInfo)
+    public String getHashDir(MusicInfo musicInfo)
     {
         // Chave usada para alocação do diretório: Nome do artista + '#' + Nome do álbum
         String musicKey = String.format("%s#%s", musicInfo.getArtist(), musicInfo.getAlbum());
@@ -359,7 +359,7 @@ public class Mp3Repository
      * @param musicInfo Informações da música
      * @return Hash do nome do arquivo
      */
-    private String getHashName(MusicInfo musicInfo)
+    public String getHashName(MusicInfo musicInfo)
     {
         // Chave usada para alocação do diretório: Nome do artista + '#' + Nome do álbum + '#' + Título da música
         String musicKey = String.format("%s#%s#%s", musicInfo.getArtist(), musicInfo.getAlbum(), musicInfo.getTitle());

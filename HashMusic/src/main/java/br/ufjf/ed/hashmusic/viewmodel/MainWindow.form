@@ -23,6 +23,9 @@
           <Properties>
             <Property name="text" type="java.lang.String" value="Relat&#xf3;rios"/>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="reportMenuMouseClicked"/>
+          </Events>
         </Menu>
       </SubComponents>
     </Menu>

@@ -13,21 +13,21 @@ import javax.swing.tree.DefaultTreeModel;
 
 /**
  * Janela principal do programa
+ *
  * @author Luis Augusto
  */
-public class MainWindow extends javax.swing.JFrame 
-{
+public class MainWindow extends javax.swing.JFrame {
+
     // Repositório de músicas Mp3
     private final Mp3Repository repository;
-    
+
     /**
      * Creates new form MainWindow
      */
-    public MainWindow() 
-    {
+    public MainWindow() {
         initComponents();
         setLocationRelativeTo(null);
-        
+
         this.repository = new Mp3Repository();
     }
 
@@ -112,6 +112,11 @@ public class MainWindow extends javax.swing.JFrame
         menuBar.add(fileMenu);
 
         reportMenu.setText("Relatórios");
+        reportMenu.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                reportMenuMouseClicked(evt);
+            }
+        });
         menuBar.add(reportMenu);
 
         setJMenuBar(menuBar);
@@ -138,83 +143,69 @@ public class MainWindow extends javax.swing.JFrame
     private void addButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addButtonActionPerformed
         // Mostra a janela para a escolha dos diretórios a serem importados
         final File[] dirList = this.repository.showImportDirectoryChooser();
-        
-        if(dirList != null)
-        {
+
+        if (dirList != null) {
             // Cria o worker e abre a janela de progresso da operação (Feedback para o usuário)
             ProgressDialog progDialog = new ProgressDialog(this, true, repository.getImportDirectoryWorker(dirList));
             progDialog.setVisible(true); // Janela modal
-            
-            try 
-            {
+
+            try {
                 // Ao término da operação, recarrega o repositório
                 this.repository.loadRepository();
-                
+
                 // Recarrega a árvore de Artistas->Álbuns
                 this.loadMusicTree();
-            } 
-            catch (IOException ex) 
-            {
+            } catch (IOException ex) {
                 JOptionPane.showMessageDialog(this, String.format("Erro ao importar as músicas para o diretório: %s", ex.getMessage()));
             }
         }
     }//GEN-LAST:event_addButtonActionPerformed
 
     private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-        try 
-        {
+        try {
             // Ao abrir o programa, se não existe o repositório, cria o diretório
             this.repository.createRepository();
-            
+
             // Tenta carregar músicas do repositório
             this.repository.loadRepository();
-            
+
             // Carrega a árvore de Artistas->Álbuns 
             this.loadMusicTree();
-        } 
-        catch (IOException ex)
-        {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Nenhuma música adicionada no repositório!");
         }
     }//GEN-LAST:event_formWindowOpened
 
     // Quando há alterações na árvore de Artistas->Álbuns, carrega a lista de músicas
     private void musicTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_musicTreeValueChanged
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)musicTree.getLastSelectedPathComponent();
-        
-        if((selectedNode != null) && (selectedNode.getParent() != null))
-        {
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) musicTree.getLastSelectedPathComponent();
+
+        if ((selectedNode != null) && (selectedNode.getParent() != null)) {
             DefaultListModel listModel = new DefaultListModel();
-            
+
             // Filtra as músicas do repositório pelo artista e pelo álbum
             ArrayList<MusicInfo> musicInfoList = this.repository.filterByArtistAndAlbum(selectedNode.getParent().toString(), selectedNode.getUserObject().toString());
-            
+
             // Adiciona todas as músicas do álbum selecionado na lista de músicas
-            for(MusicInfo info : musicInfoList)
-            {
+            for (MusicInfo info : musicInfoList) {
                 listModel.addElement(info.getTitle());
             }
-            
+
             // Exibe a lista de músicas
             this.musicList.setModel(listModel);
         }
     }//GEN-LAST:event_musicTreeValueChanged
-    
+
     // Ao clicar em uma música da lista de músicas, toca a música
     private void musicListMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_musicListMouseClicked
-        try 
-        {
+        try {
             String selectedMusic = this.musicList.getSelectedValue().toString();
-            
+
             // Busca pelas informações da música selecionada a toca a música
             this.repository.openMusic(repository.getMusicInfo(selectedMusic));
-        } 
-        catch (IOException ex) 
-        {
+        } catch (IOException ex) {
             JOptionPane.showMessageDialog(this, "Música não encontrada!");
-        }
-        catch(UnsupportedOperationException ex)
-        {
+        } catch (UnsupportedOperationException ex) {
             JOptionPane.showMessageDialog(this, "A plataforma atual não dá suporte a este recurso");
         }
     }//GEN-LAST:event_musicListMouseClicked
@@ -223,107 +214,96 @@ public class MainWindow extends javax.swing.JFrame
         this.dispose();
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
+    private void reportMenuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportMenuMouseClicked
+        // Cria o worker e abre a janela de progresso da operação (Feedback para o usuário)
+        Relatorios relat = new Relatorios();
+        relat.setVisible(true); // Janela modal
+    }//GEN-LAST:event_reportMenuMouseClicked
+
     /**
      * @param args the command line arguments
      */
-    public static void main(String args[]) 
-    {
+    public static void main(String args[]) {
         /* Set the Nimbus look and feel */
         //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        try 
-        {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) 
-            {
-                if ("Nimbus".equals(info.getName())) 
-                {
+        try {
+            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
+                if ("Nimbus".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
             }
-        } 
-        catch (ClassNotFoundException ex) 
-        {
+        } catch (ClassNotFoundException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } 
-        catch (InstantiationException ex) 
-        {
+        } catch (InstantiationException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } 
-        catch (IllegalAccessException ex) 
-        {
+        } catch (IllegalAccessException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } 
-        catch (javax.swing.UnsupportedLookAndFeelException ex)
-        {
+        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(MainWindow.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() 
-        {
+        java.awt.EventQueue.invokeLater(new Runnable() {
             @Override
-            public void run() 
-            {
+            public void run() {
                 new MainWindow().setVisible(true);
             }
         });
     }
-    
+
     // Carrega os nós da árvore de Artista->Álbuns
-    private void loadMusicTree()
-    {
+    private void loadMusicTree() {
         // Nó raiz do repositório
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Repositório");
-        
+
         // Percorre toda a lista de informações de música do repositório
-        for(MusicInfo musicInfo : repository.getRepositoryList())
-        {
+        for (MusicInfo musicInfo : repository.getRepositoryList()) {
             // Busca pelo nó do artista
             DefaultMutableTreeNode artistNode = this.getTreeNode(rootNode, musicInfo.getArtist());
-            
+
             // Verifica se o nó do artista não existe, se não existir, cria um novo nó
-            if(artistNode == null)
+            if (artistNode == null) {
                 artistNode = new DefaultMutableTreeNode(musicInfo.getArtist());
-            
+            }
+
             // Busca pelo nó do álbum
             DefaultMutableTreeNode albumNode = this.getTreeNode(artistNode, musicInfo.getAlbum());
-            
+
             // Verifica se o nó do álbum não existe, se não existir, cria um novo nó
-            if(albumNode == null)
-            {
+            if (albumNode == null) {
                 albumNode = new DefaultMutableTreeNode(musicInfo.getAlbum());
-                
+
                 // Adiciona o nó do álbum como filho do nó do artista
                 artistNode.add(albumNode);
             }
-            
+
             // Adiciona todos os nós de artista como filhos do nó raiz do repositório
             rootNode.add(artistNode);
         }
-        
+
         DefaultTreeModel treeModel = new DefaultTreeModel(rootNode);
-        
+
         // Exibe a árvore
         this.musicTree.setModel(treeModel);
     }
-    
+
     // Busca por um nó na árvore através do nome do nó
-    private DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode, String childName)
-    {
+    private DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode, String childName) {
         Enumeration childrenList = rootNode.children();
-        
-        while(childrenList.hasMoreElements())
-        {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)childrenList.nextElement();
-            
-            if(child.getUserObject().toString().toLowerCase().equals(childName.toLowerCase()))
+
+        while (childrenList.hasMoreElements()) {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenList.nextElement();
+
+            if (child.getUserObject().toString().toLowerCase().equals(childName.toLowerCase())) {
                 return child;
+            }
         }
-        
+
         return null;
     }
 
