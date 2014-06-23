@@ -7,7 +7,10 @@ package br.ufjf.ed.hashmusic.viewmodel;
 
 import br.ufjf.ed.hashmusic.model.MusicInfo;
 import br.ufjf.ed.hashmusic.repository.Mp3Repository;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,9 +24,10 @@ public class Relatorios extends javax.swing.JFrame {
     // Repositório de músicas Mp3
     private final Mp3Repository repository;
 
-    public Relatorios() {
+    public Relatorios() throws IOException {
         initComponents();
         this.repository = new Mp3Repository();
+        this.repository.loadRepository();
         setLocationRelativeTo(null);
         calculateCollisions();
     }
@@ -69,15 +73,19 @@ public class Relatorios extends javax.swing.JFrame {
 
             jLabel4.setText(String.valueOf((float)colideName / musics.size()));
             jLabel6.setText(String.valueOf((float)colideName / colidedName.size()));
+            jLabel15.setText(String.valueOf(colideName));
             jLabel10.setText(String.valueOf((float)colideDir / musics.size()));
             jLabel11.setText(String.valueOf((float)colideDir / colidedDir.size()));
+            jLabel14.setText(String.valueOf(colideDir));
             
         } else {
             
             jLabel4.setText(String.valueOf(0));
             jLabel6.setText(String.valueOf(0));
+            jLabel15.setText(String.valueOf(0));
             jLabel10.setText(String.valueOf(0));
             jLabel11.setText(String.valueOf(0));
+            jLabel14.setText(String.valueOf(0));
             
         }
     }
@@ -104,6 +112,10 @@ public class Relatorios extends javax.swing.JFrame {
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
         jButton2 = new javax.swing.JButton();
+        jLabel12 = new javax.swing.JLabel();
+        jLabel13 = new javax.swing.JLabel();
+        jLabel14 = new javax.swing.JLabel();
+        jLabel15 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -114,10 +126,10 @@ public class Relatorios extends javax.swing.JFrame {
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Tahoma", 0, 14)); // NOI18N
+        jLabel1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
         jLabel1.setText("Relatório de Colisões");
 
-        jLabel2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel2.setText("Hashing de Nome");
 
         jLabel3.setText("Quantdade Média de Colisões Totais ");
@@ -128,7 +140,7 @@ public class Relatorios extends javax.swing.JFrame {
 
         jLabel6.setText("mediumName");
 
-        jLabel7.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel7.setText("Hashing de Diretório");
 
         jLabel8.setText("Quantdade Média de Colisões Totais ");
@@ -140,12 +152,19 @@ public class Relatorios extends javax.swing.JFrame {
         jLabel11.setText("mediumDir");
 
         jButton2.setText("Atualizar");
-        jButton2.setActionCommand("Atualizar");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton2ActionPerformed(evt);
             }
         });
+
+        jLabel12.setText("Total de Colisões");
+
+        jLabel13.setText("Total de Colisões");
+
+        jLabel14.setText("totalColidedDir");
+
+        jLabel15.setText("totalColidedName");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -163,24 +182,30 @@ public class Relatorios extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel5))
-                                .addGap(18, 18, 18)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel4)))
                             .addComponent(jLabel7)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel9)
                                 .addGap(47, 47, 47)
                                 .addComponent(jLabel11))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel8)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel8)
+                                    .addComponent(jLabel13))
                                 .addGap(18, 18, 18)
-                                .addComponent(jLabel10)))
-                        .addGap(0, 122, Short.MAX_VALUE)))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel14)
+                                    .addComponent(jLabel10)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel12))
+                                .addGap(18, 18, 18)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel15)
+                                    .addComponent(jLabel6)
+                                    .addComponent(jLabel4))))
+                        .addGap(0, 101, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -190,6 +215,10 @@ public class Relatorios extends javax.swing.JFrame {
                 .addComponent(jLabel1)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel12)
+                    .addComponent(jLabel15))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
@@ -202,13 +231,17 @@ public class Relatorios extends javax.swing.JFrame {
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel13)
+                    .addComponent(jLabel14))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
                     .addComponent(jLabel10))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
                     .addComponent(jLabel11))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 111, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton1)
                     .addComponent(jButton2))
@@ -216,10 +249,6 @@ public class Relatorios extends javax.swing.JFrame {
         );
 
         jLabel3.getAccessibleContext().setAccessibleName("jLabel3");
-        jLabel4.getAccessibleContext().setAccessibleName("totalName");
-        jLabel6.getAccessibleContext().setAccessibleName("mediumName");
-        jLabel10.getAccessibleContext().setAccessibleName("totalDir");
-        jLabel11.getAccessibleContext().setAccessibleName("mediumDir");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -262,7 +291,11 @@ public class Relatorios extends javax.swing.JFrame {
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new Relatorios().setVisible(true);
+                try {
+                    new Relatorios().setVisible(true);
+                } catch (IOException ex) {
+                    Logger.getLogger(Relatorios.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }
@@ -273,6 +306,10 @@ public class Relatorios extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
+    private javax.swing.JLabel jLabel13;
+    private javax.swing.JLabel jLabel14;
+    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
