@@ -128,7 +128,7 @@ public class Mp3Repository
                                                 && ((tag.getTitle() != null) && !tag.getTitle().isEmpty()))
                                         {
                                             // Faz a verificação se a música já não existe no repositório, só adiciono músicas que não existem
-                                            if(getMusicInfo(tag.getTitle()) == null)
+                                            if(!containsMusicInfo(tag.getArtist(), tag.getAlbum(), tag.getTitle()))
                                             {
                                                 // Preenche um novo objeto MusicInfo com as informações da tag
                                                 MusicInfo musicInfo = new MusicInfo(tag.getArtist(), tag.getAlbum(), tag.getTitle());
@@ -198,7 +198,7 @@ public class Mp3Repository
     }
     
     /**
-     * Se o diretório do repositório não existir, cria o diretório
+     * Cria o repositório se ele não existir
      */
     public void createRepository()
     {
@@ -337,7 +337,29 @@ public class Mp3Repository
     }
     
     /**
-     * Função que retorna o hash do diretório
+     * Verifica se uma música já existe no repositório
+     * @param artist Nome do artista
+     * @param album Nome do álbum
+     * @param title Título da música
+     * @return (true) Se a música já existe; (false) Se a música não existe
+     */
+    private boolean containsMusicInfo(String artist, String album, String title)
+    {
+        for (MusicInfo info : repositoryList) 
+        {
+            if (info.getArtist().toLowerCase().equals(artist.toLowerCase())
+                    && info.getAlbum().toLowerCase().equals(album.toLowerCase())
+                    && info.getTitle().toLowerCase().equals(title.toLowerCase())) 
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Retorna o hash do diretório
      * @param musicInfo Informações da música
      * @return Hash do diretório
      */
@@ -355,7 +377,7 @@ public class Mp3Repository
     }
     
     /**
-     * Função que retorna o hash do nome do arquivo
+     * Retorna o hash do nome do arquivo
      * @param musicInfo Informações da música
      * @return Hash do nome do arquivo
      */
