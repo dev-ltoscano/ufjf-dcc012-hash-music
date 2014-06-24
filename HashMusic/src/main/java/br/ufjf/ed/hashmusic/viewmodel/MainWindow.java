@@ -6,6 +6,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -215,9 +217,15 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void reportMenuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportMenuMouseClicked
-        // Cria o worker e abre a janela de progresso da operação (Feedback para o usuário)
-        Relatorios relat = new Relatorios();
-        relat.setVisible(true); // Janela modal
+        try 
+        {
+            Relatorios relat = new Relatorios();
+            relat.setVisible(true); // Janela modal
+        } 
+        catch (IOException ex) 
+        {
+            Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }//GEN-LAST:event_reportMenuMouseClicked
 
     /**

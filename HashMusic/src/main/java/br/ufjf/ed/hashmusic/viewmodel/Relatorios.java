@@ -71,21 +71,21 @@ public class Relatorios extends javax.swing.JFrame {
 
             }
 
-            jLabel4.setText(String.valueOf((float)colideName / musics.size()));
-            jLabel6.setText(String.valueOf((float)colideName / colidedName.size()));
-            jLabel15.setText(String.valueOf(colideName));
-            jLabel10.setText(String.valueOf((float)colideDir / musics.size()));
-            jLabel11.setText(String.valueOf((float)colideDir / colidedDir.size()));
-            jLabel14.setText(String.valueOf(colideDir));
+            totalName.setText(String.valueOf((float)colideName / musics.size()));
+            mediumName.setText(String.valueOf((float)colideName / colidedName.size()));
+            totalColidedName.setText(String.valueOf(colideName));
+            totalDir.setText(String.valueOf((float)colideDir / musics.size()));
+            mediumDir.setText(String.valueOf((float)colideDir / colidedDir.size()));
+            totalColidedDir.setText(String.valueOf(colideDir));
             
         } else {
             
-            jLabel4.setText(String.valueOf(0));
-            jLabel6.setText(String.valueOf(0));
-            jLabel15.setText(String.valueOf(0));
-            jLabel10.setText(String.valueOf(0));
-            jLabel11.setText(String.valueOf(0));
-            jLabel14.setText(String.valueOf(0));
+            totalName.setText(String.valueOf(0));
+            mediumName.setText(String.valueOf(0));
+            totalColidedName.setText(String.valueOf(0));
+            totalDir.setText(String.valueOf(0));
+            mediumDir.setText(String.valueOf(0));
+            totalColidedDir.setText(String.valueOf(0));
             
         }
     }
@@ -99,30 +99,30 @@ public class Relatorios extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jButton1 = new javax.swing.JButton();
+        exitButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
+        labelTotalName = new javax.swing.JLabel();
+        totalName = new javax.swing.JLabel();
+        labelMediumName = new javax.swing.JLabel();
+        mediumName = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
-        jLabel12 = new javax.swing.JLabel();
-        jLabel13 = new javax.swing.JLabel();
-        jLabel14 = new javax.swing.JLabel();
-        jLabel15 = new javax.swing.JLabel();
+        labelTotalDir = new javax.swing.JLabel();
+        labelMediumDir = new javax.swing.JLabel();
+        totalDir = new javax.swing.JLabel();
+        mediumDir = new javax.swing.JLabel();
+        updateButton = new javax.swing.JButton();
+        labelTotalColidedName = new javax.swing.JLabel();
+        labelTotalColidedDir = new javax.swing.JLabel();
+        totalColidedDir = new javax.swing.JLabel();
+        totalColidedName = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jButton1.setText("Sair");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        exitButton.setText("Sair");
+        exitButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                exitButtonActionPerformed(evt);
             }
         });
 
@@ -132,39 +132,39 @@ public class Relatorios extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel2.setText("Hashing de Nome");
 
-        jLabel3.setText("Quantdade Média de Colisões Totais ");
+        labelTotalName.setText("Quantidade Média de Colisões Totais ");
 
-        jLabel4.setText("totalName");
+        totalName.setText("totalName");
 
-        jLabel5.setText("Distribuição Média das Colisões");
+        labelMediumName.setText("Distribuição Média das Colisões");
 
-        jLabel6.setText("mediumName");
+        mediumName.setText("mediumName");
 
         jLabel7.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel7.setText("Hashing de Diretório");
 
-        jLabel8.setText("Quantdade Média de Colisões Totais ");
+        labelTotalDir.setText("Quantdade Média de Colisões Totais ");
 
-        jLabel9.setText("Distribuição Média das Colisões");
+        labelMediumDir.setText("Distribuição Média das Colisões");
 
-        jLabel10.setText("totalDir");
+        totalDir.setText("totalDir");
 
-        jLabel11.setText("mediumDir");
+        mediumDir.setText("mediumDir");
 
-        jButton2.setText("Atualizar");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        updateButton.setText("Atualizar");
+        updateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
+                updateButtonActionPerformed(evt);
             }
         });
 
-        jLabel12.setText("Total de Colisões");
+        labelTotalColidedName.setText("Total de Colisões");
 
-        jLabel13.setText("Total de Colisões");
+        labelTotalColidedDir.setText("Total de Colisões");
 
-        jLabel14.setText("totalColidedDir");
+        totalColidedDir.setText("totalColidedDir");
 
-        jLabel15.setText("totalColidedName");
+        totalColidedName.setText("totalColidedName");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -175,37 +175,37 @@ public class Relatorios extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addComponent(jButton2)
+                        .addComponent(updateButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton1))
+                        .addComponent(exitButton))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel1)
                             .addComponent(jLabel2)
                             .addComponent(jLabel7)
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel9)
+                                .addComponent(labelMediumDir)
                                 .addGap(47, 47, 47)
-                                .addComponent(jLabel11))
+                                .addComponent(mediumDir))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel8)
-                                    .addComponent(jLabel13))
+                                    .addComponent(labelTotalDir)
+                                    .addComponent(labelTotalColidedDir))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel14)
-                                    .addComponent(jLabel10)))
+                                    .addComponent(totalColidedDir)
+                                    .addComponent(totalDir)))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel5)
-                                    .addComponent(jLabel12))
+                                    .addComponent(labelTotalName)
+                                    .addComponent(labelMediumName)
+                                    .addComponent(labelTotalColidedName))
                                 .addGap(18, 18, 18)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel15)
-                                    .addComponent(jLabel6)
-                                    .addComponent(jLabel4))))
-                        .addGap(0, 101, Short.MAX_VALUE)))
+                                    .addComponent(totalColidedName)
+                                    .addComponent(mediumName)
+                                    .addComponent(totalName))))
+                        .addGap(0, 99, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -217,49 +217,49 @@ public class Relatorios extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel12)
-                    .addComponent(jLabel15))
+                    .addComponent(labelTotalColidedName)
+                    .addComponent(totalColidedName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel3)
-                    .addComponent(jLabel4))
+                    .addComponent(labelTotalName)
+                    .addComponent(totalName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel5)
-                    .addComponent(jLabel6))
+                    .addComponent(labelMediumName)
+                    .addComponent(mediumName))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel13)
-                    .addComponent(jLabel14))
+                    .addComponent(labelTotalColidedDir)
+                    .addComponent(totalColidedDir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel8)
-                    .addComponent(jLabel10))
+                    .addComponent(labelTotalDir)
+                    .addComponent(totalDir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel9)
-                    .addComponent(jLabel11))
+                    .addComponent(labelMediumDir)
+                    .addComponent(mediumDir))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 71, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButton1)
-                    .addComponent(jButton2))
+                    .addComponent(exitButton)
+                    .addComponent(updateButton))
                 .addContainerGap())
         );
 
-        jLabel3.getAccessibleContext().setAccessibleName("jLabel3");
+        labelTotalName.getAccessibleContext().setAccessibleName("jLabel3");
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    private void exitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitButtonActionPerformed
         this.dispose();
-    }//GEN-LAST:event_jButton1ActionPerformed
+    }//GEN-LAST:event_exitButtonActionPerformed
 
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+    private void updateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_updateButtonActionPerformed
         calculateCollisions();
-    }//GEN-LAST:event_jButton2ActionPerformed
+    }//GEN-LAST:event_updateButtonActionPerformed
 
     /**
      * @param args the command line arguments
@@ -301,22 +301,22 @@ public class Relatorios extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
+    private javax.swing.JButton exitButton;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
-    private javax.swing.JLabel jLabel13;
-    private javax.swing.JLabel jLabel14;
-    private javax.swing.JLabel jLabel15;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
+    private javax.swing.JLabel labelMediumDir;
+    private javax.swing.JLabel labelMediumName;
+    private javax.swing.JLabel labelTotalColidedDir;
+    private javax.swing.JLabel labelTotalColidedName;
+    private javax.swing.JLabel labelTotalDir;
+    private javax.swing.JLabel labelTotalName;
+    private javax.swing.JLabel mediumDir;
+    private javax.swing.JLabel mediumName;
+    private javax.swing.JLabel totalColidedDir;
+    private javax.swing.JLabel totalColidedName;
+    private javax.swing.JLabel totalDir;
+    private javax.swing.JLabel totalName;
+    private javax.swing.JButton updateButton;
     // End of variables declaration//GEN-END:variables
 }
