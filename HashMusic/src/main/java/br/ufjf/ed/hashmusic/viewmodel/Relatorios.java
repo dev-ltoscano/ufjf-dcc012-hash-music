@@ -9,6 +9,7 @@ import br.ufjf.ed.hashmusic.model.MusicInfo;
 import br.ufjf.ed.hashmusic.repository.Mp3Repository;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,7 +34,7 @@ public class Relatorios extends javax.swing.JFrame {
     }
 
     private void calculateCollisions() {
-        ArrayList<MusicInfo> musics = repository.getRepositoryList();
+        List<MusicInfo> musics = repository.getRepositoryList();
         
         if (musics.size() > 0) {
             ArrayList<String> existentName = new ArrayList<>();

@@ -2,10 +2,12 @@ package br.ufjf.ed.hashmusic.viewmodel;
 
 import br.ufjf.ed.hashmusic.model.MusicInfo;
 import br.ufjf.ed.hashmusic.repository.Mp3Repository;
+import br.ufjf.ed.hashmusic.sort.MergeSort;
+import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoTitleComparator;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.DefaultListModel;
@@ -182,15 +184,31 @@ public class MainWindow extends javax.swing.JFrame {
     private void musicTreeValueChanged(javax.swing.event.TreeSelectionEvent evt) {//GEN-FIRST:event_musicTreeValueChanged
         DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode) musicTree.getLastSelectedPathComponent();
 
-        if ((selectedNode != null) && (selectedNode.getParent() != null)) {
+        if (selectedNode != null) 
+        {
+            List<MusicInfo> musicInfoList = null;
             DefaultListModel listModel = new DefaultListModel();
 
-            // Filtra as músicas do repositório pelo artista e pelo álbum
-            ArrayList<MusicInfo> musicInfoList = this.repository.filterByArtistAndAlbum(selectedNode.getParent().toString(), selectedNode.getUserObject().toString());
-
-            // Adiciona todas as músicas do álbum selecionado na lista de músicas
-            for (MusicInfo info : musicInfoList) {
-                listModel.addElement(info.getTitle());
+            if(selectedNode.getParent() != null)
+            {
+                // Filtra as músicas do repositório pelo artista e pelo álbum
+                musicInfoList = this.repository.filterByArtistAndAlbum(selectedNode.getParent().toString(), selectedNode.getUserObject().toString());
+            }
+            else if (selectedNode.getUserObject().toString().equalsIgnoreCase("Repositório")) 
+            {
+                musicInfoList = this.repository.getRepositoryList();
+            }
+            
+            if(musicInfoList != null)
+            {
+                MergeSort mergeSort = new MergeSort();
+                musicInfoList = mergeSort.sort(musicInfoList, new MusicInfoTitleComparator());
+                
+                // Adiciona todas as músicas do álbum selecionado na lista de músicas
+                for (MusicInfo info : musicInfoList)
+                {
+                    listModel.addElement(info.getTitle());
+                }
             }
 
             // Exibe a lista de músicas
@@ -283,7 +301,8 @@ public class MainWindow extends javax.swing.JFrame {
             DefaultMutableTreeNode albumNode = this.getTreeNode(artistNode, musicInfo.getAlbum());
 
             // Verifica se o nó do álbum não existe, se não existir, cria um novo nó
-            if (albumNode == null) {
+            if (albumNode == null) 
+            {
                 albumNode = new DefaultMutableTreeNode(musicInfo.getAlbum());
 
                 // Adiciona o nó do álbum como filho do nó do artista
@@ -304,10 +323,12 @@ public class MainWindow extends javax.swing.JFrame {
     private DefaultMutableTreeNode getTreeNode(DefaultMutableTreeNode rootNode, String childName) {
         Enumeration childrenList = rootNode.children();
 
-        while (childrenList.hasMoreElements()) {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode) childrenList.nextElement();
+        while (childrenList.hasMoreElements()) 
+        {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode)childrenList.nextElement();
 
-            if (child.getUserObject().toString().toLowerCase().equals(childName.toLowerCase())) {
+            if (child.getUserObject().toString().equalsIgnoreCase(childName)) 
+            {
                 return child;
             }
         }

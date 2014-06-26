@@ -1,10 +1,12 @@
 package br.ufjf.ed.hashmusic.model;
 
+import java.util.Objects;
+
 /**
  * Classe de objetos que guardam as informações de uma música
  * @author Luis Augusto
  */
-public class MusicInfo 
+public class MusicInfo
 {
     private String artist;
     private String album;
@@ -64,5 +66,48 @@ public class MusicInfo
      */
     public void setAlbum(String album) {
         this.album = album;
+    }
+    
+    public boolean similar(Object obj)
+    {
+        if(obj instanceof MusicInfo)
+        {
+            MusicInfo info = (MusicInfo)obj;
+            
+            if (info.getArtist().equalsIgnoreCase(this.artist) || info.getAlbum().equalsIgnoreCase(this.album) || info.getTitle().equalsIgnoreCase(this.title)) 
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    @Override
+    public boolean equals(Object obj)
+    {
+        if(obj instanceof MusicInfo)
+        {
+            MusicInfo info = (MusicInfo)obj;
+            
+            if (info.getArtist().equalsIgnoreCase(this.artist) && info.getAlbum().equalsIgnoreCase(this.album) && info.getTitle().equalsIgnoreCase(this.title)) 
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    @Override
+    public int hashCode() 
+    {
+        int hash = 7;
+        
+        hash = 53 * hash + Objects.hashCode(this.artist);
+        hash = 53 * hash + Objects.hashCode(this.album);
+        hash = 53 * hash + Objects.hashCode(this.title);
+        
+        return hash;
     }
 }

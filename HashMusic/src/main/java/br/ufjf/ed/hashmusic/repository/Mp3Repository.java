@@ -8,6 +8,9 @@ import br.ufjf.ed.hashmusic.helper.FileHelper;
 import br.ufjf.ed.hashmusic.helper.XmlHelper;
 import br.ufjf.ed.hashmusic.model.MusicInfo;
 import br.ufjf.ed.hashmusic.model.RepositoryLogInfo;
+import br.ufjf.ed.hashmusic.sort.MergeSort;
+import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoArtistAndAlbumComparator;
+import br.ufjf.ed.hashmusic.viewmodel.component.MusicInfoFilterList;
 import com.mpatric.mp3agic.ID3v2;
 import com.mpatric.mp3agic.InvalidDataException;
 import com.mpatric.mp3agic.Mp3File;
@@ -19,6 +22,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
@@ -31,9 +35,9 @@ public class Mp3Repository
 {
     // Diretório do repositório
     private final String PATH_REPOSITORY;
-    
+
     // Lista de MusicInfo das músicas contidas no repositório
-    private ArrayList<MusicInfo> repositoryList;
+    private List<MusicInfo> repositoryList;
     
     public Mp3Repository()
     {
@@ -57,7 +61,7 @@ public class Mp3Repository
     /**
      * @return the repositoryList
      */
-    public ArrayList<MusicInfo> getRepositoryList() 
+    public List<MusicInfo> getRepositoryList() 
     {
         return repositoryList;
     }
@@ -217,7 +221,10 @@ public class Mp3Repository
      */
     public void loadRepository() throws IOException
     {
-        this.repositoryList = (ArrayList<MusicInfo>)XmlHelper.readXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList);
+        ArrayList<MusicInfo> tempList = (ArrayList<MusicInfo>)XmlHelper.readXml(FileHelper.formatSubDirectory(PATH_REPOSITORY, "Music.xml"), repositoryList);
+        
+        MergeSort mergeSort = new MergeSort();
+        this.repositoryList = mergeSort.sort(tempList, new MusicInfoArtistAndAlbumComparator());
     }
 
     /**
@@ -231,7 +238,7 @@ public class Mp3Repository
         {
             for (MusicInfo info : repositoryList) 
             {
-                if (info.getTitle().toLowerCase().equals(title.toLowerCase()))
+                if (info.getTitle().equalsIgnoreCase(title))
                     return info;
             }
         }
@@ -271,7 +278,7 @@ public class Mp3Repository
      * @param artist Nome do artista
      * @return Lista das músicas do artista
      */
-    public ArrayList<MusicInfo> filterByArtist(String artist)
+    public List<MusicInfo> filterByArtist(String artist)
     {
         return this.filterByArtist(artist, repositoryList);
     }
@@ -281,7 +288,7 @@ public class Mp3Repository
      * @param album Nome do album
      * @return Lista das músicas de um álbum
      */
-    public ArrayList<MusicInfo> filterByAlbum(String album)
+    public List<MusicInfo> filterByAlbum(String album)
     {
         return this.filterByAlbum(album, repositoryList);
     }
@@ -292,9 +299,9 @@ public class Mp3Repository
      * @param album Nome do album
      * @return Lista das músicas do artista e do álbum
      */
-    public ArrayList<MusicInfo> filterByArtistAndAlbum(String artist, String album)
+    public List<MusicInfo> filterByArtistAndAlbum(String artist, String album)
     {
-        ArrayList<MusicInfo> artistMusicList = this.filterByArtist(artist, repositoryList);
+        List<MusicInfo> artistMusicList = this.filterByArtist(artist, repositoryList);
         return this.filterByAlbum(album, artistMusicList);
     }
     
@@ -304,17 +311,25 @@ public class Mp3Repository
      * @param musicInfoList Lista com as informações das músicas a serem buscadas
      * @return Lista das músicas do artista
      */
-    private ArrayList<MusicInfo> filterByArtist(String artist, ArrayList<MusicInfo> musicInfoList)
+    private List<MusicInfo> filterByArtist(String artist, List<MusicInfo> musicInfoList)
     {
-        ArrayList<MusicInfo> filtred = new ArrayList<>();
-        
-        for(MusicInfo info : musicInfoList)
+        if(musicInfoList != null)
         {
-            if(info.getArtist().toLowerCase().equals(artist.toLowerCase()))
-                filtred.add(info);
+            MusicInfoFilterList infoList = new MusicInfoFilterList();
+            infoList.addAll(musicInfoList);
+
+            MusicInfo info = new MusicInfo();
+            info.setArtist(artist);
+
+            int firstIndex = infoList.firstIndex(info);
+            int lastIndex = infoList.lastIndex(firstIndex, info);
+
+            if (firstIndex != -1) {
+                return infoList.subList(firstIndex, lastIndex + 1);
+            }
         }
         
-        return filtred;
+        return null;
     }
     
     /**
@@ -323,17 +338,25 @@ public class Mp3Repository
      * @param musicInfoList Lista com as informações das músicas a serem buscadas
      * @return Lista das músicas do álbum
      */
-    private ArrayList<MusicInfo> filterByAlbum(String album, ArrayList<MusicInfo> musicInfoList)
+    private List<MusicInfo> filterByAlbum(String album, List<MusicInfo> musicInfoList)
     {
-        ArrayList<MusicInfo> filtred = new ArrayList<>();
-        
-        for(MusicInfo info : musicInfoList)
+        if(musicInfoList != null)
         {
-            if(info.getAlbum().toLowerCase().equals(album.toLowerCase()))
-                filtred.add(info);
+            MusicInfoFilterList infoList = new MusicInfoFilterList();
+            infoList.addAll(musicInfoList);
+
+            MusicInfo infoT = new MusicInfo();
+            infoT.setAlbum(album);
+
+            int firstIndex = infoList.firstIndex(infoT);
+            int lastIndex = infoList.lastIndex(firstIndex, infoT);
+
+            if (firstIndex != -1) {
+                return infoList.subList(firstIndex, lastIndex + 1);
+            }
         }
         
-        return filtred;
+        return null;
     }
     
     /**
@@ -347,12 +370,8 @@ public class Mp3Repository
     {
         for (MusicInfo info : repositoryList) 
         {
-            if (info.getArtist().toLowerCase().equals(artist.toLowerCase())
-                    && info.getAlbum().toLowerCase().equals(album.toLowerCase())
-                    && info.getTitle().toLowerCase().equals(title.toLowerCase())) 
-            {
+            if(info.equals(new MusicInfo(artist, album, title)))
                 return true;
-            }
         }
         
         return false;
