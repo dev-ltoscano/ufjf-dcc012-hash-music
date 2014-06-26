@@ -31,7 +31,7 @@ public class HashMultiplication implements IHash, IHashName
         
         String hash = String.valueOf(sum * ((float)key.length() / IHash.PRIME_NUMBER));
         
-        if(hash.length() < IHashName.NAME_LENGTH)
+        if(hash.length() <= IHashName.NAME_LENGTH)
             return hash;
         
         return hash.substring(hash.length() - IHashName.NAME_LENGTH);
