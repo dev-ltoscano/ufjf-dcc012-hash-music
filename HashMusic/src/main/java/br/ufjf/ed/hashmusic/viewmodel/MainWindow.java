@@ -55,6 +55,7 @@ public class MainWindow extends javax.swing.JFrame {
         fileMenu = new javax.swing.JMenu();
         exitMenuItem = new javax.swing.JMenuItem();
         reportMenu = new javax.swing.JMenu();
+        collisionMenu = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Hash Music");
@@ -122,6 +123,14 @@ public class MainWindow extends javax.swing.JFrame {
             }
         });
         menuBar.add(reportMenu);
+
+        collisionMenu.setText("Colisões");
+        collisionMenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                collisionMenuActionPerformed(evt);
+            }
+        });
+        menuBar.add(collisionMenu);
 
         setJMenuBar(menuBar);
 
@@ -235,16 +244,21 @@ public class MainWindow extends javax.swing.JFrame {
     }//GEN-LAST:event_exitMenuItemActionPerformed
 
     private void reportMenuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_reportMenuMouseClicked
+        ReportWindow reportWindow = new ReportWindow();
+        reportWindow.setVisible(true); // Janela modal
+    }//GEN-LAST:event_reportMenuMouseClicked
+
+    private void collisionMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collisionMenuActionPerformed
         try 
         {
-            Relatorios relat = new Relatorios();
-            relat.setVisible(true); // Janela modal
+            CollisionWindow collisionWindow = new CollisionWindow();
+            collisionWindow.setVisible(true); // Janela modal
         } 
         catch (IOException ex) 
         {
             Logger.getLogger(MainWindow.class.getName()).log(Level.SEVERE, null, ex);
         }
-    }//GEN-LAST:event_reportMenuMouseClicked
+    }//GEN-LAST:event_collisionMenuActionPerformed
 
     /**
      * @param args the command line arguments
@@ -338,6 +352,7 @@ public class MainWindow extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton addButton;
+    private javax.swing.JMenu collisionMenu;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JMenuBar menuBar;
