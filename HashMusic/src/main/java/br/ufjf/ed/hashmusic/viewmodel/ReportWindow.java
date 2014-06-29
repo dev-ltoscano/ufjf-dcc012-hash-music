@@ -1,9 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package br.ufjf.ed.hashmusic.viewmodel;
 
 import br.ufjf.ed.hashmusic.model.MusicInfo;
@@ -11,11 +5,11 @@ import br.ufjf.ed.hashmusic.repository.Mp3Repository;
 import br.ufjf.ed.hashmusic.sort.MergeSort;
 import br.ufjf.ed.hashmusic.viewmodel.component.TableMusicInfoComparatorChange;
 import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoAlbumComparator;
+import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoArtistAlbumAndTitleComparator;
 import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoArtistAndAlbumComparator;
 import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoArtistComparator;
 import br.ufjf.ed.hashmusic.viewmodel.component.comparator.MusicInfoTitleComparator;
 import br.ufjf.ed.hashmusic.viewmodel.component.event.TableColumnClickListener;
-import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.util.Comparator;
@@ -46,7 +40,7 @@ public class ReportWindow extends javax.swing.JFrame
             this.repository = new Mp3Repository();
             this.repository.loadRepository();
             
-            this.comparator = new MusicInfoArtistAndAlbumComparator();
+            this.comparator = new MusicInfoArtistComparator();
             this.loadItems();
         } 
         catch (IOException ex) 
@@ -91,6 +85,9 @@ public class ReportWindow extends javax.swing.JFrame
                             break;
                         case "Artista#Álbum#":
                             comparator = new MusicInfoArtistAndAlbumComparator();
+                            break;
+                        case "Artista#Álbum#Título#":
+                            comparator = new MusicInfoArtistAlbumAndTitleComparator();
                             break;
                     }
                     

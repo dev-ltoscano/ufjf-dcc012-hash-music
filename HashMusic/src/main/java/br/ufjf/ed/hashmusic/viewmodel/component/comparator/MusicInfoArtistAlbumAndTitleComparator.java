@@ -5,9 +5,9 @@ import java.util.Comparator;
 
 /**
  *
- * @author Igor Pires
+ * @author Luis Augusto
  */
-public class MusicInfoArtistAndAlbumComparator implements Comparator<MusicInfo>
+public class MusicInfoArtistAlbumAndTitleComparator implements Comparator<MusicInfo>
 {
     @Override
     public int compare(MusicInfo info1, MusicInfo info2) 
@@ -16,7 +16,14 @@ public class MusicInfoArtistAndAlbumComparator implements Comparator<MusicInfo>
         
         if (compareArtist == 0) 
         {
-            return info1.getAlbum().compareToIgnoreCase(info2.getAlbum());
+            int compareAlbum = info1.getAlbum().compareToIgnoreCase(info2.getAlbum());
+            
+            if(compareAlbum == 0)
+            {
+                return info1.getTitle().compareToIgnoreCase(info2.getTitle());
+            }
+            
+            return compareAlbum;
         }
 
         return compareArtist;
